@@ -1,0 +1,23 @@
+{
+    "benchmarks": [
+        {
+            "method": "Naive", 
+            "n": 3, 
+            "num_runs": 5, 
+            "num_calls_per_run": 100
+        },
+        {
+            "method": "ZonalPolynomial", 
+            "n": 3, 
+            "num_runs": 5, 
+            "num_calls_per_run": 100
+        },
+        {
+            "method": "MonteCarloApproximation", 
+            "n": 3, 
+            "num_runs": 5, 
+            "num_calls_per_run": 100,
+            "zsf_kwargs": {"n_stab_samples": 10}
+        }
+    ]
+}

@@ -83,15 +83,19 @@ def bench_percall_time(
     return compute_stats(results)
 
 
-def run_time_benchmark(
-    n,
-    num_runs,
-    num_calls_per_run,
-    methods_list,
-):
-    results = dict()
-    for method in methods_list:
-        results[method] = dict()
+def run_time_benchmarks(config):
+    results = []
+
+    for benchmark in config["benchmarks"]:
+
+        method = benchmark["method"]
+        n = benchmark["n"]
+        num_runs = benchmark["num_runs"]
+        num_calls_per_run = benchmark["num_calls_per_run"]
+        if "zsf_kwargs" not in benchmark:
+            benchmark["zsf_kwargs"] = {}
+        zsf_kwargs = benchmark["zsf_kwargs"]
+
         print(f"Processing {method}, n={n}")
 
         zsf_class = {
@@ -105,14 +109,7 @@ def run_time_benchmark(
         else:
             kernel_class = PTreeHeatPrecomputedKernel
 
-        zsf_kwargs = {
-            "Naive": {},
-            "ZonalPolynomial": {},
-            # TODO: do something with it
-            "MonteCarloApproximation": {"n_stab_samples": 10}
-        }[method]
-
-        results[method][f"Precompute, n={n}"] = bench_precompute_time(
+        precompute_results = bench_precompute_time(
             kernel_class=kernel_class,
             kernel_kwargs={},
             zsf_class=zsf_class,
@@ -121,7 +118,10 @@ def run_time_benchmark(
             num_runs=num_runs
         )
 
-        results[method][f"Query, n={n}"] = bench_percall_time(
+        for key, value in precompute_results.items():
+            benchmark["Precompute " + key] = value
+
+        query_results = bench_percall_time(
             kernel_class=kernel_class,
             kernel_kwargs={},
             zsf_class=zsf_class,
@@ -131,30 +131,24 @@ def run_time_benchmark(
             num_calls_per_run=num_calls_per_run
         )
 
+        for key, value in query_results.items():
+            benchmark["Query " + key] = value
+
+        results.append(benchmark)
+
     return results
 
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument("--config_path", type=str, required=True)
     parser.add_argument("--save_filepath", type=str, required=True)
-    parser.add_argument("--num_runs", type=int, default=20)
-    parser.add_argument("--num_calls_per_run", type=int, default=100)
-    parser.add_argument("--n", type=int, default=3)
-    parser.add_argument(
-        "--methods", 
-        type=str,
-        choices=["Naive", "ZonalPolynomial", "MonteCarloApproximation"],
-        nargs="+",
-        default=["Naive", "ZonalPolynomial", "MonteCarloApproximation"]
-    )
     args = parser.parse_args()
 
-    benchmark_results = run_time_benchmark(
-        n=args.n,
-        num_runs=args.num_runs,
-        num_calls_per_run=args.num_calls_per_run,
-        methods_list=args.methods
-    )
+    with open(args.config_path, "r") as f:
+        config = json.load(f)
+
+    benchmark_results = run_time_benchmarks(config)
 
     with open(args.save_filepath, "w") as f:
         json.dump(benchmark_results, f)
