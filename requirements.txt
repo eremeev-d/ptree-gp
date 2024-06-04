@@ -1,6 +1,0 @@
-pytest==7.4.4
-numpy==1.23.5
-
-# actually, needed only for benchmarks
-pandas==2.2.2
-jinja2  

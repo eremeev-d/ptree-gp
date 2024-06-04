@@ -4,7 +4,6 @@ import json
 import os
 
 import numpy as np
-import pandas as pd
 
 from ptree_gp.kernels import (
     PTreeHeatPrecomputedKernel, PTreeMaternPrecomputedKernel,
