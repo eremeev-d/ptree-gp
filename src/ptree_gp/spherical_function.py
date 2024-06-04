@@ -5,20 +5,20 @@ from abc import ABC, abstractmethod
 import numpy as np
 import math
 
-from gp_phylogenetic_trees.utils import (
+from ptree_gp.utils import (
     half_partition, double_partition, check_covers, 
     iterate_column_stabilizer, iterate_x0_stabilizer, 
     iterate_all_matchings, iterate_all_partitions, 
     iterate_all_permutations, compute_sphere_size
 )
-from gp_phylogenetic_trees.zonal_polynomials import (
+from ptree_gp.zonal_polynomials import (
     ZpCoeffComputer, MsfToPsConverter, PsWeightedSum
 )
-from gp_phylogenetic_trees.primitives import (
+from ptree_gp.primitives import (
     Partition, Permutation, Tableau, Matching,
     matching_distance
 )
-from gp_phylogenetic_trees.sn_characters import SnCharactersTable
+from ptree_gp.sn_characters import SnCharactersTable
 
 # NOTE (!!!): Currently it is assumed that x0 = {{1, 2}, {3, 4}, ..., {2n-1, 2n}}
 # TODO: add description of methods

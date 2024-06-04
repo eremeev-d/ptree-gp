@@ -1,10 +1,10 @@
 import math
 from typing import Iterable, List
 
-from gp_phylogenetic_trees.primitives import (
+from ptree_gp.primitives import (
     Partition, Permutation, Tableau, Matching
 )
-from gp_phylogenetic_trees.utils import (
+from ptree_gp.utils import (
     iterate_all_partitions
 )
 

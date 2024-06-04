@@ -2,11 +2,11 @@ import math
 
 import pytest
 
-from gp_phylogenetic_trees.utils import (
+from ptree_gp.utils import (
     check_covers, half_partition, compute_sphere_size,
     iterate_all_permutations, iterate_column_stabilizer,
     iterate_all_partitions, iterate_all_matchings)
-from gp_phylogenetic_trees.primitives import (
+from ptree_gp.primitives import (
     Partition, Permutation, Tableau, Matching,
     matching_distance)
 

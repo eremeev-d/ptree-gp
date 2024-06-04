@@ -3,17 +3,17 @@ from typing import List, Set, Tuple
 from dataclasses import dataclass
 from copy import deepcopy
 
-from gp_phylogenetic_trees.primitives import Partition
+from ptree_gp.primitives import Partition
 
 import numpy as np
 import math
 
-from gp_phylogenetic_trees.utils import (
+from ptree_gp.utils import (
     half_partition, check_covers, 
     iterate_column_stabilizer, iterate_x0_stabilizer, 
     iterate_all_matchings, iterate_all_partitions
 )
-from gp_phylogenetic_trees.primitives import (
+from ptree_gp.primitives import (
     Partition, Permutation, Tableau, Matching,
     matching_distance
 )

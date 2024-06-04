@@ -1,12 +1,12 @@
 import pytest
 import numpy as np
 
-from gp_phylogenetic_trees.kernels import (
+from ptree_gp.kernels import (
     PTreeHeatKernel, PTreeMaternKernel,
     PTreeHeatPrecomputedKernel, PTreeMaternPrecomputedKernel)
-from gp_phylogenetic_trees.spherical_function import (
+from ptree_gp.spherical_function import (
     ZonalPolynomialZSF, ApproximationZSF, NaiveZSF)
-from gp_phylogenetic_trees.primitives import (
+from ptree_gp.primitives import (
     Permutation, Matching, matching_distance)
 
 def get_x0(n):

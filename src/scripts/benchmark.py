@@ -6,12 +6,12 @@ import os
 import numpy as np
 import pandas as pd
 
-from gp_phylogenetic_trees.kernels import (
+from ptree_gp.kernels import (
     PTreeHeatPrecomputedKernel, PTreeMaternPrecomputedKernel,
     PTreeHeatKernel, PTreeMaternKernel)
-from gp_phylogenetic_trees.spherical_function import (
+from ptree_gp.spherical_function import (
     NaiveZSF, ZonalPolynomialZSF, ApproximationZSF)
-from gp_phylogenetic_trees.primitives import (
+from ptree_gp.primitives import (
     Permutation, Matching, matching_distance)
 
 

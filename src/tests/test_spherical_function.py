@@ -2,12 +2,12 @@ import pytest
 import numpy as np
 from typing import List, Set, Tuple
 
-from gp_phylogenetic_trees.spherical_function import (
+from ptree_gp.spherical_function import (
     NaiveZSF, ZonalPolynomialZSF, ApproximationZSF)
-from gp_phylogenetic_trees.utils import (
+from ptree_gp.utils import (
     iterate_all_partitions
 )
-from gp_phylogenetic_trees.primitives import (
+from ptree_gp.primitives import (
     Partition, Permutation, Tableau, Matching, matching_distance)
 
 

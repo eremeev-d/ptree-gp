@@ -4,7 +4,7 @@ from math import factorial
 
 import itertools
 
-from gp_phylogenetic_trees.primitives import (
+from ptree_gp.primitives import (
     Partition, Permutation, Tableau, Matching
 )
 

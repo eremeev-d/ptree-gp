@@ -3,13 +3,13 @@ from typing import List, Set, Tuple, Optional
 from math import factorial, exp
 from abc import ABC, abstractmethod
 
-from gp_phylogenetic_trees.primitives import (
+from ptree_gp.primitives import (
     Partition, Permutation, Matching, matching_distance)
-from gp_phylogenetic_trees.spherical_function import (
+from ptree_gp.spherical_function import (
     ZonalSphericalFunctionBase, ZonalPolynomialZSF)
-from gp_phylogenetic_trees.sn_characters import (
+from ptree_gp.sn_characters import (
     SnCharactersTable)
-from gp_phylogenetic_trees.utils import (
+from ptree_gp.utils import (
     double_partition, iterate_all_partitions)
 
 

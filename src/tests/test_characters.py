@@ -1,7 +1,7 @@
 import pytest
 
-from gp_phylogenetic_trees.sn_characters import SnCharactersTable
-from gp_phylogenetic_trees.primitives import Partition
+from ptree_gp.sn_characters import SnCharactersTable
+from ptree_gp.primitives import Partition
 
 
 def test_full_n_equal_4():

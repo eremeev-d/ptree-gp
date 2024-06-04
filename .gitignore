@@ -1,4 +1,4 @@
 __pycache__
-src/gp_phylogenetic_trees.egg-info
+**/*.egg-info
 src/build
 .env

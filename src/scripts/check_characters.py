@@ -1,11 +1,11 @@
 from functools import partial
 
-from gp_phylogenetic_trees.utils import (
+from ptree_gp.utils import (
     half_partition, check_covers, 
     iterate_x0_stabilizer, iterate_all_permutations
 )
-from gp_phylogenetic_trees.spherical_function import SphericalFunction
-from gp_phylogenetic_trees.primitives import (
+from ptree_gp.spherical_function import SphericalFunction
+from ptree_gp.primitives import (
     Partition, Permutation, Tableau, Matching
 )
 
