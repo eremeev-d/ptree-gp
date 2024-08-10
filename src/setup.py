@@ -7,7 +7,7 @@ requirements = (
 extra_requirements = {
     "tests": (
         "pytest==7.4.4"
-    )
+    ),
     "experiments": (
         "matplotlib==3.9.1"
     )
