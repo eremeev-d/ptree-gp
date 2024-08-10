@@ -1,12 +1,15 @@
 import setuptools
 
 requirements = (
-    "numpy>=1.23.5"
+    "numpy==1.23.5"
 )
 
 extra_requirements = {
     "tests": (
-        "pytest>=7.4.4"
+        "pytest==7.4.4"
+    )
+    "experiments": (
+        "matplotlib==3.9.1"
     )
 }
 
