@@ -1,9 +1,7 @@
 from __future__ import annotations
-from typing import List, Set, Tuple
+from typing import List, Set, Tuple, Dict
 from dataclasses import dataclass
 from copy import deepcopy
-
-from ptree_gp.primitives import Partition
 
 import numpy as np
 import math
@@ -22,8 +20,13 @@ from ptree_gp.primitives import (
 class ZpCoeffComputer:
     def __init__(self, n, eps=1e-12):
         self._n = n
-        self._cache = dict()
         self._eps = eps
+
+    # NOTE: computes coefs up to some unknown constant that depends on zp_index!
+    def __call__(self, zp_index: Partition) -> Dict[Partition, float]:
+        coefs = dict()
+        coefs[zp_index] = 1.0
+        n = self._n
 
         partitions = [  # TODO: just add comparator to Partition class?
             lamb.astuple() 
@@ -33,39 +36,38 @@ class ZpCoeffComputer:
         partitions.sort(reverse=True)
         partitions = [Partition(*lamb) for lamb in partitions]
 
-        for kappa_idx in range(len(partitions)):
-            kappa = partitions[kappa_idx]
+        for zp_coef in partitions:
+            if zp_coef == zp_index:
+                continue
+            elif self._less(zp_index, zp_coef):
+                coefs[zp_coef] = 0.0
+                continue
 
-            # Compute initial value for c(kappa, kappa)
-            if kappa == Partition(n):
-                self._cache[(kappa, kappa)] = 1.0
+            result = 0.0
+
+            for s, zp_coef_s in enumerate(zp_coef):
+                for r, zp_coef_r in enumerate(zp_coef):
+                    if r >= s:
+                        break
+                    for t in range(1, zp_coef_s + 1):
+                        mu = list(zp_coef.aslist()).copy()
+                        mu[s] -= t
+                        mu[r] += t
+                        mu = list(filter(lambda mu_i: mu_i >= 1, mu))
+                        mu = Partition(*mu)
+
+                        if self._less(zp_coef, mu) and self._lesseq(mu, zp_index):
+                            result += (zp_coef_r + t - zp_coef_s + t) * coefs[mu]
+
+            if abs(result) > self._eps:
+                den = self._rho(zp_index) - self._rho(zp_coef)
+                result = result / den
             else:
-                comb = math.factorial(n)
-                for kappa_i in kappa:
-                    comb //= math.factorial(kappa_i)
-                comb = float(comb)
-                for kappa_prime_idx in range(kappa_idx):
-                    kappa_prime = partitions[kappa_prime_idx]
-                    comb -= self(kappa=kappa_prime, lamb=kappa)
-                self._cache[(kappa, kappa)] = comb
+                result = 0.0
 
-            # Compute other coefs using recurrence and initial value
-            for lamb_idx in range(kappa_idx, len(partitions)):
-                lamb = partitions[lamb_idx]
-                self._precompute(kappa, lamb)
+            coefs[zp_coef] = result
 
-    def __call__(self, kappa: Partition, lamb: Partition) -> float:
-        if self._lesseq(lamb, kappa):
-            key = (kappa, lamb)
-            return self._cache[key]
-        else:
-            return 0.0
-
-    def _precompute(self, kappa: Partition, lamb: Partition) -> float:
-        key = (kappa, lamb)
-        if key not in self._cache:
-            self._cache[key] = self._compute(lamb=lamb, kappa=kappa)
-        return self._cache[key]
+        return coefs
 
     def _less(self, a: Partition, b: Partition) -> bool:
         return a.aslist() < b.aslist()
@@ -85,34 +87,6 @@ class ZpCoeffComputer:
         result = 0.0
         for i, lamb_i in enumerate(lamb):
             result += lamb_i * (lamb_i - (i + 1))
-        return result
-
-    def _compute(self, kappa: Partition, lamb: Partition) -> float:
-        result = 0.0
-
-        n = lamb.size
-        if lamb == kappa:
-            assert False, "Should be computed outside this function"
-
-        for s, lamb_s in enumerate(lamb):
-            for r, lamb_r in enumerate(lamb):
-                if r >= s:
-                    break
-                for t in range(1, lamb_s + 1):
-                    mu = list(lamb.aslist()).copy()
-                    mu[s] -= t
-                    mu[r] += t
-                    mu = list(filter(lambda mu_i: mu_i >= 1, mu))
-                    mu = Partition(*mu)
-
-                    if self._less(lamb, mu) and self._lesseq(mu, kappa):
-                        result += (lamb_r + t - lamb_s + t) * self._precompute(
-                            kappa=kappa, lamb=mu)
-
-        if abs(result) > self._eps:
-            den = self._rho(kappa) - self._rho(lamb)
-            result = result / den
-
         return result
 
 
@@ -209,3 +183,20 @@ class MsfToPsConverter:
             s -= self.monom(Partition(*b))
 
         return s
+
+    def __call__(self, kappa: Partition, mu: Partition):
+        monom = self.monom(kappa).asdict()
+        if mu in monom:
+            coef = monom[mu]
+            t = {}
+            for kappa_i in kappa:
+                if kappa_i not in t:
+                    t[kappa_i] = 0
+                t[kappa_i] += 1
+
+            den = 1.0
+            for i, t_i in t.items():
+                den *= math.factorial(t_i)
+            return coef / den
+        else:
+            return 0.0
