@@ -128,3 +128,53 @@ class NaiveZSF(DistanceBasedZSFBase):
     ) -> float:
         key = (zsf_index, distance)
         return self._numerator[key] / self._denominator[key]
+
+
+class ApproximationZSF(ZonalSphericalFunctionBase):
+    def __init__(
+            self, 
+            space: MatchingSpace, 
+            n_stab_samples: int = 100
+    ) -> None:
+        super().__init__(space)
+        self._zsf_value = dict()
+        self._characters = SnCharactersTable()
+        self._stab_samples = [
+            self._get_random_stabilizer_permutation(space.n) 
+            for _ in range(n_stab_samples)]
+
+    def _get_random_stabilizer_permutation(self, n: int):
+        ### First, sample from stabilizer of x1 = {{1, 2}, {3, 4}, ..., {2n-1, 2n}} 
+        pairs_order = np.random.permutation(n)
+        permutation = []
+        for i in pairs_order:
+            if np.random.randint(2):
+                permutation.append(2 * i + 1)
+                permutation.append(2 * i + 2)
+            else:
+                permutation.append(2 * i + 2)
+                permutation.append(2 * i + 1)
+        permutation = Permutation(*permutation)
+
+        ### If x0 = g x1, then Stab(x0) = g Stab(x1) g^{-1}
+        g = []
+        for pair in self._space.x0.iterate_pairs():
+            g.extend(pair)
+        g = Permutation(*g)
+        return g * permutation * g.inverse()
+
+
+    def __call__(
+            self, 
+            zsf_index: Partition, 
+            permutation: Permutation
+    ) -> float:
+        zsf_value = 0.0
+        rho = double_partition(zsf_index)
+        for stab_1 in self._stab_samples:
+            for stab_2 in self._stab_samples:
+                g = stab_2.inverse() * permutation * stab_1
+                zsf_value += self._characters.get_value(
+                    character=rho, rho = g.partition())
+        zsf_value /= len(self._stab_samples)**2
+        return zsf_value
