@@ -89,3 +89,42 @@ class ZonalPolynomialZSF(DistanceBasedZSFBase):
 
         den = den * compute_sphere_size(distance)
         return num / den
+
+
+# TODO: iterate all matchings more efficiently (!!!)
+class NaiveZSF(DistanceBasedZSFBase):
+    def __init__(self, space: MatchingSpace) -> None:
+        super().__init__(space)
+
+        self._numerator = dict()
+        self._denominator = dict()
+
+        for lamb in iterate_all_partitions(space.n):
+            self._precompute_lamb(lamb)
+
+    def _precompute_lamb(self, lamb: Partition) -> None:
+        n = self._space.n
+        x0 = self._space.x0
+        t = self._space.get_good_tableau(lamb)
+
+        for x in iterate_all_matchings(n):
+            d = matching_distance(x, x0)
+            key = (lamb, d)
+
+            if key not in self._denominator:
+                self._denominator[key] = 0
+            self._denominator[key] = self._denominator[key] + 1
+
+            for sigma in iterate_column_stabilizer(t, fix_even=True):
+                if check_covers(x, sigma * t):
+                    if key not in self._numerator:
+                        self._numerator[key] = 0
+                    self._numerator[key] = self._numerator[key] + sigma.sign()
+
+    def _compute_at_dist(
+            self, 
+            zsf_index: Partition, 
+            distance: Partition
+    ) -> float:
+        key = (zsf_index, distance)
+        return self._numerator[key] / self._denominator[key]

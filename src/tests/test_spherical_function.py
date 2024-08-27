@@ -4,7 +4,7 @@ from typing import List, Set, Tuple
 
 from ptree_gp.spaces import MatchingSpace
 from ptree_gp.spherical_function import (
-    # NaiveZSF, 
+    NaiveZSF, 
     ZonalPolynomialZSF, 
     # ApproximationZSF
 )
@@ -51,27 +51,27 @@ def test_zsf_first_nontrivial_value(zsf_class, n, atol=1e-9):
         assert abs(zsf_value - true_value) < atol
     
 
-# TODO: restore this tests
-# @pytest.mark.parametrize(
-#     "zsf_class_first, zsf_class_second, n",
-#     [
-#         [NaiveZSF, ZonalPolynomialZSF, 1],
-#         [NaiveZSF, ZonalPolynomialZSF, 2],
-#         [NaiveZSF, ZonalPolynomialZSF, 3],
-#         [NaiveZSF, ZonalPolynomialZSF, 4],
-#     ]
-# )
-# def test_zsf_equal(zsf_class_first, zsf_class_second, n, atol=1e-9):
-#     partitions = list(iterate_all_partitions(n))
+@pytest.mark.parametrize(
+    "zsf_class_first, zsf_class_second, n",
+    [
+        [NaiveZSF, ZonalPolynomialZSF, 1],
+        [NaiveZSF, ZonalPolynomialZSF, 2],
+        [NaiveZSF, ZonalPolynomialZSF, 3],
+        [NaiveZSF, ZonalPolynomialZSF, 4],
+    ]
+)
+def test_zsf_equal(zsf_class_first, zsf_class_second, n, atol=1e-9):
+    partitions = list(iterate_all_partitions(n))
+    space = MatchingSpace(n)
 
-#     zsf_first = zsf_class_first().precompute(n)
-#     zsf_second = zsf_class_second().precompute(n)
+    zsf_first = zsf_class_first(space)
+    zsf_second = zsf_class_second(space)
 
-#     for zsf_index in partitions:
-#         for distance in partitions:
-#             first_value = zsf_first.compute_at_dist(zsf_index, distance)
-#             second_value = zsf_second.compute_at_dist(zsf_index, distance)
-#             assert abs(first_value - second_value) < atol
+    for zsf_index in partitions:
+        for distance in partitions:
+            first_value = zsf_first.compute_at_dist(zsf_index, distance)
+            second_value = zsf_second.compute_at_dist(zsf_index, distance)
+            assert abs(first_value - second_value) < atol
 
 
 @pytest.mark.parametrize(
@@ -82,9 +82,9 @@ def test_zsf_first_nontrivial_value(zsf_class, n, atol=1e-9):
         # [ApproximationZSF, 2, 10],
         # [ApproximationZSF, 3, 10],
         # [ApproximationZSF, 4, 10],
-        # [NaiveZSF, 1, 1000],
-        # [NaiveZSF, 2, 1000],
-        # [NaiveZSF, 3, 1000],
+        [NaiveZSF, 1, 1000],
+        [NaiveZSF, 2, 1000],
+        [NaiveZSF, 3, 1000],
         [ZonalPolynomialZSF, 1, 1000],
         [ZonalPolynomialZSF, 2, 1000],
         [ZonalPolynomialZSF, 3, 1000],
@@ -129,7 +129,7 @@ def test_zsf_pos_def(
 @pytest.mark.parametrize(
     "zsf_class",
     [
-        # NaiveZSF,  # TODO
+        NaiveZSF,
         ZonalPolynomialZSF
     ]
 )

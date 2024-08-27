@@ -1,7 +1,8 @@
 from typing import Optional
 from math import factorial
 
-from ptree_gp.primitives import Matching
+from ptree_gp.primitives import Matching, Tableau, Partition, Permutation
+from ptree_gp.utils import double_partition
 
 
 class MatchingSpace:
@@ -27,3 +28,9 @@ class MatchingSpace:
     @property
     def group_size(self) -> int:
         return factorial(2 * self.n)
+
+    def get_good_tableau(self, lamb: Partition) -> Tableau:
+        permutation = []
+        for pair in self.x0.iterate_pairs():
+            permutation.extend(pair)
+        return Tableau(double_partition(lamb), Permutation(*permutation))
