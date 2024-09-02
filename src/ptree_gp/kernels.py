@@ -21,13 +21,11 @@ class PTreeMaternKernel:
             self, 
             space: MatchingSpace, 
             zsf: ZonalSphericalFunctionBase, 
-            zsf_indexes: Optional[List[Partition]] = None
+            num_zsf_indexes: Optional[int] = None
     ):
         self._space = space
         self._zsf = zsf
-        if zsf_indexes is None:
-            zsf_indexes = list(iterate_all_partitions(space.n))
-        self._zsf_indexes = zsf_indexes
+        self._num_zsf_indexes = num_zsf_indexes
         self._characters = SnCharactersTable()
 
     def init_params(self) -> dict:
@@ -49,13 +47,45 @@ class PTreeMaternKernel:
         else:
             return self._compute(params, permutation)
 
+    # TODO: add lru_cache?
+    # TODO: add some tests?
+    # TODO: check formula for impact
+    # NOTE: returns |G| * |H| * impact(rho)
+    def _get_normalized_impact(self, params: dict, zsf_index: Partition):
+        n = self._space.n
+        two_rho = double_partition(zsf_index)
+
+        identity_partition = Partition(*[1 for _ in range(2 * n)])
+        kappa = [2] + [1 for _ in range(2 * n - 2)]
+        kappa = Partition(*kappa)
+
+        dim_rho = self._characters.get_value(
+            character=two_rho, rho=identity_partition)
+
+        chi_value = self._characters.get_value(
+            character=two_rho, rho=kappa)
+
+        eigenvalue = (dim_rho - chi_value) / dim_rho
+        phi_eigenvalue = self._phi(params, eigenvalue)
+        return (phi_eigenvalue ** 2) * dim_rho
+
+    def _get_zsf_indexes(self, params: dict):
+        zsf_indexes = list(iterate_all_partitions(self._space.n))
+        if self._num_zsf_indexes is None:
+            return zsf_indexes
+        else:
+            zsf_indexes.sort(
+                lambda zsf_index: self.get_normalized_impact(params, zsf_index))
+            return zsf_indexes[:self._num_zsf_indexes]
+        
+
     def _compute(self, params: dict, permutation: Permutation) -> float:
         n = self._space.n
         group_size = self._space.group_size
 
         kernel_value = 0.0
 
-        for zsf_index in self._zsf_indexes:
+        for zsf_index in self._get_zsf_indexes(params):
             eigenvalue = self._compute_eigenvalue(zsf_index)
             phi_eigenvalue = self._phi(params, eigenvalue)
             dim_rho = self._compute_dim(zsf_index)

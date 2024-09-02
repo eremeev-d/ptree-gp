@@ -2,15 +2,30 @@
     "benchmarks": [
         {
             "method": "ZonalPolynomial", 
-            "n": 5, 
-            "num_runs": 5, 
-            "num_calls_per_run": 100
+            "n": 15, 
+            "num_runs": 10, 
+            "num_calls_per_run": 10,
+            "kernel_kwargs": {"num_zsf_indexes": 20}
         },
         {
             "method": "ZonalPolynomial", 
             "n": 15, 
-            "num_runs": 5, 
-            "num_calls_per_run": 100
+            "num_runs": 10, 
+            "num_calls_per_run": 10,
+            "kernel_kwargs": {"num_zsf_indexes": 40}
+        },
+        {
+            "method": "ZonalPolynomial", 
+            "n": 15, 
+            "num_runs": 10, 
+            "num_calls_per_run": 10,
+            "kernel_kwargs": {"num_zsf_indexes": 100}
+        },
+        {
+            "method": "ZonalPolynomial", 
+            "n": 15, 
+            "num_runs": 10, 
+            "num_calls_per_run": 10
         }
     ]
 }
