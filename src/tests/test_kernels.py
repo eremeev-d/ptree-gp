@@ -5,8 +5,8 @@ from ptree_gp.spaces import MatchingSpace
 from ptree_gp.kernels import PTreeMaternKernel
 from ptree_gp.spherical_function import (
     ZonalPolynomialZSF, 
-    # ApproximationZSF, 
-    # NaiveZSF
+    ApproximationZSF, 
+    NaiveZSF
 )
 from ptree_gp.primitives import (
     Permutation, 

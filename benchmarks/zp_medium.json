@@ -1,0 +1,16 @@
+{
+    "benchmarks": [
+        {
+            "method": "ZonalPolynomial", 
+            "n": 5, 
+            "num_runs": 5, 
+            "num_calls_per_run": 100
+        },
+        {
+            "method": "ZonalPolynomial", 
+            "n": 15, 
+            "num_runs": 5, 
+            "num_calls_per_run": 100
+        }
+    ]
+}

@@ -5,22 +5,23 @@ import os
 
 import numpy as np
 
-from ptree_gp.kernels import (
-    PTreeHeatPrecomputedKernel, PTreeMaternPrecomputedKernel,
-    PTreeHeatKernel, PTreeMaternKernel)
+from ptree_gp.spaces import MatchingSpace
+from ptree_gp.kernels import PTreeMaternKernel
 from ptree_gp.spherical_function import (
-    NaiveZSF, ZonalPolynomialZSF, ApproximationZSF)
+    ZonalPolynomialZSF, 
+    ApproximationZSF, 
+    NaiveZSF
+)
 from ptree_gp.primitives import (
-    Permutation, Matching, matching_distance)
+    Permutation, 
+    Matching, 
+    matching_distance
+)
 
 
 def get_random_permutation(n):  # TODO: move this to utils
     perm = np.arange(1, n+1)
     return Permutation(*np.random.permutation(perm))
-
-
-def get_x0(n):  # TODO: move this to utils
-    return Matching(*tuple((2*h-1, 2*h) for h in range(1, n+1)))
 
 
 def compute_stats(results):
@@ -45,8 +46,13 @@ def bench_precompute_time(
     results = []
     for _ in range(num_runs):
         start_time = time.perf_counter()
-        zsf = zsf_class().precompute(n=n, **zsf_kwargs)
-        kernel = kernel_class(n=n, zsf=zsf, **kernel_kwargs).precompute()
+        
+        space = MatchingSpace(n)
+        zsf = zsf_class(space, **zsf_kwargs)
+
+        kernel = kernel_class(space, zsf, **kernel_kwargs)
+        params = kernel.init_params()
+
         end_time = time.perf_counter()
         results.append(end_time - start_time)
     return compute_stats(results)
@@ -65,17 +71,18 @@ def bench_percall_time(
     results = []
 
     for _ in range(num_runs):
-        zsf = zsf_class().precompute(n=n, **zsf_kwargs)
-        kernel = kernel_class(n=n, zsf=zsf, **kernel_kwargs).precompute()
+        space = MatchingSpace(n)
+        zsf = zsf_class(space, **zsf_kwargs)
 
-        x0 = get_x0(n)
+        kernel = kernel_class(space, zsf, **kernel_kwargs)
+        params = kernel.init_params()
 
         x_array = [get_random_permutation(2*n) for _ in range(num_calls_per_run)]
         y_array = [get_random_permutation(2*n) for _ in range(num_calls_per_run)]
 
         start_time = time.perf_counter()
         for x, y in zip(x_array, y_array):
-            value = kernel(y.inverse() * x)
+            value = kernel(params, y.inverse() * x)
         end_time = time.perf_counter()
         results.append((end_time - start_time) / num_calls_per_run)
 
@@ -103,10 +110,7 @@ def run_time_benchmarks(config):
             "MonteCarloApproximation": ApproximationZSF
         }[method]
 
-        if zsf_class == ApproximationZSF:
-            kernel_class = PTreeHeatKernel
-        else:
-            kernel_class = PTreeHeatPrecomputedKernel
+        kernel_class = PTreeMaternKernel
 
         precompute_results = bench_precompute_time(
             kernel_class=kernel_class,
